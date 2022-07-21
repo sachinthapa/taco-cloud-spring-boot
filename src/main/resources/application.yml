@@ -1,0 +1,104 @@
+taco:
+  orders:
+    pageSize: 10
+
+  discount:
+    codes:
+      abcdef: 10
+      
+#logging:
+#  level:
+#    org.springframework.data.rest: debug
+#mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+
+spring:
+ config:
+    activate:
+      on-profile: jms-template, jms-listener
+# datasource:
+#    url: jdbc:mysql://localhost/tacocloud
+#    username: tacouser
+#    password: tacopassword
+#    driver-class-name: com.mysql.jdbc.Driver
+ security:
+  user:
+    name: buzz
+    password: infinity
+ jms:
+   template:
+    default-destination: tacocloud.order.queue
+    receive-timeout: 2
+# artemis:
+#  broker-url: tcp://localhost:61616
+##  host: localhost
+##  port: 61616
+#  user: tacoweb
+#  password: letm31n
+#  embedded:
+#    enabled: false
+# 
+ data:
+  rest:
+   base-path: /api #Note:ControllerLinkBuilder may not take Spring Data REST's base path into account 
+#   detection-strategy: annotated
+# mvc:
+#    servlet:
+#      path: /api # may not take Spring Data REST's base path into apis lists "use slash(../api/) at the end"", overrides resources base path
+# mvc:
+#server:
+#  servlet:
+#    context-path: /api # Note: somwhow shows 404 on some rest controller, overrides resources base path
+---
+
+spring:
+ main:
+    web-application-type: reactive
+ config:
+    activate:
+      on-profile: rabbit-template, rabbit-listener
+ security:
+  user:
+    name: buzz
+    password: infinity
+ rabbitmq:
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+#  template:
+#   exchange: tacocloud.orders
+#   routing-key: kitchens.central
+#   receive-timeout: 30000
+ data:
+  rest:
+   base-path: /api  
+
+---
+
+spring:
+ config:
+    activate:
+      on-profile: kafka-listener
+ security:
+  user:
+    name: buzz
+    password: infinity
+ kafka:
+   bootstrap-servers: localhost:9092
+   template:
+     default-topic: tacocloud.orders.topic
+   consumer:
+     group-id: tacocloud_kitchen
+     key-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+     value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+     properties:
+       spring.json.trusted.packages: taco
+   producer:
+     key-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+ data:
+  rest:
+   base-path: /api  
+
+    
+    
